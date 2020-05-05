@@ -9,6 +9,16 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 
+def paginate_questions(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+
+    questions = [question.format() for question in selection]
+    current_questions = questions[start:end]
+
+    return current_questions
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -33,6 +43,24 @@ def create_app(test_config=None):
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
+    @app.route('/questions')
+    def retrieve_questions():
+        selection = Question.query.order_by(Question.id).all()
+        current_questions = paginate_questions(request, selection)
+
+        categories = Category.query.all()
+
+        if len(current_questions) == 0:
+            abort(404)
+
+        return jsonify({
+            'success': True,
+            'questions': current_questions,
+            'total_questions': len(selection),
+            'categories': [category.type for category in categories],
+            'current_category': None
+        })
+
 
 
   '''
