@@ -100,7 +100,7 @@ def create_app(test_config=None):
                 'deleted': question_id
             })
         abort(404)
-        
+
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
@@ -109,6 +109,29 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   '''
 
+
+    @app.route("/questions", methods=['POST'])
+    def add_question():
+        body = request.get_json()
+
+        new_question = body.get('question', None)
+        new_answer = body.get('answer', None)
+        new_difficulty = body.get('difficulty', None)
+        new_category = body.get('category', None)
+
+        try:
+            question = Question(question=new_question, answer=new_answer,
+                                difficulty=new_difficulty, category=new_category)
+            question.insert()
+
+            return jsonify({
+                'success': True,
+                'created': question.id,
+            })
+
+        except:
+            abort(404)
+            
   '''
   @TODO: 
   Create an endpoint to POST a new question, 
