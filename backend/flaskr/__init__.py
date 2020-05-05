@@ -88,6 +88,19 @@ def create_app(test_config=None):
 
         if len(current_questions) == 0:
             abort(404)
+
+                @app.route("/questions/<question_id>", methods=['DELETE'])
+    def delete_question(question_id):
+
+        question = Question.query.get(question_id)
+        if question:
+            question.delete()
+            return jsonify({
+                'success': True,
+                'deleted': question_id
+            })
+        abort(404)
+        
   '''
   @TODO: 
   Create an endpoint to DELETE question using a question ID. 
