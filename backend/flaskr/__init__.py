@@ -130,8 +130,7 @@ def create_app(test_config=None):
             })
 
         except:
-            abort(404)
-            
+            abort(404)     
   '''
   @TODO: 
   Create an endpoint to POST a new question, 
@@ -142,7 +141,22 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+    @app.route('/questions/search', methods=['POST'])
+    def search_questions():
+        body = request.get_json()
+        search_term = body.get('searchTerm', None)
 
+        if search_term:
+            search_results = Question.query.filter(
+                Question.question.ilike(f'%{search_term}%')).all()
+
+            return jsonify({
+                'success': True,
+                'questions': [question.format() for question in search_results],
+                'total_questions': len(search_results),
+                'current_category': None
+            })
+        abort(404)
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
