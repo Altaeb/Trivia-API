@@ -61,7 +61,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(data['categories']))
 
     def test_404_sent_requesting_non_existing_category(self):
-        res = self.client().get('/categories/9999')
+        question = Question(question='new question', answer='new answer',
+                            difficulty=1, category=1)
+        question.insert()
+        question_id = question.id
+
+        res = self.client().delete(f'/questions/{question_id}')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
@@ -72,11 +77,12 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().delete('/questions/13')
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 13).one_or_none()
+        question = Question.query.filter(
+            Question.id == question.id).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], '13')
+        self.assertEqual(data['deleted'], str(question_id))
         self.assertEqual(question, None)
 
     def test_422_sent_deleting_non_existing_question(self):
@@ -174,7 +180,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "unprocessable")
 
-        
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
